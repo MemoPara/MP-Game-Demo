@@ -8,4 +8,5 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/MemorialParadise/Scenes/GamePlay.unity
     guid: ef7613397e9ace74c87cb8025293ef73
-  m_configObjects: {}
+  m_configObjects:
+    com.unity.input.settings: {fileID: 11400000, guid: 9e7be553448fa2546aea5752021cbcf7, type: 2}

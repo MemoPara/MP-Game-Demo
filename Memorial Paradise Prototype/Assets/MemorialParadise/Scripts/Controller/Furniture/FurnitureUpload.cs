@@ -1,14 +1,11 @@
+using System.IO;
+using UnityEditor;
 using UnityEngine;
 
 public class FurnitureUpload : MonoBehaviour
 {
     private MeshRenderer meshRenderer;
 
-    // Start is called before the first frame update
-    [SerializeField]
-    private Material newMaterial;
-    [SerializeField]
-    private Texture texture;
     private void Start()
     {
         this.meshRenderer = GetComponent<MeshRenderer>();
@@ -16,15 +13,42 @@ public class FurnitureUpload : MonoBehaviour
         {
             //this.meshRenderer.material = this.newMaterial;
             //Material newMat = new Material(Shader.Find("Diffuse"));
-            Material newMat = this.meshRenderer.material;
-            newMat.SetTexture("_MainTex", this.texture);
-            this.meshRenderer.material = newMat;
+            //Material newMat = this.meshRenderer.material;
+            //newMat.SetTexture("_MainTex", this.texture);
+            //this.meshRenderer.material = newMat;
         }
     }
 
-    // Update is called once per frame
-    private void Update()
+    public void OpenFurnitureUpload()
     {
+        Debug.Log("Upload UI...");
+        //string path = EditorUtility.OpenFilePanel("Select image for upload...", "", "png");
+        string path = EditorUtility.SaveFilePanel("Save file", Application.dataPath, "TVTexture", "png");
+        if (this.meshRenderer)
+        {
+            Texture texture = this.meshRenderer.material.mainTexture;
+            Texture2D texture2D = Decompress(texture);
+            File.WriteAllBytes(path, texture2D.EncodeToPNG());
+        }
+    }
 
+    private Texture2D Decompress(Texture source)
+    {
+        RenderTexture renderTexture = RenderTexture.GetTemporary(
+            source.width,
+            source.height,
+            0,
+            RenderTextureFormat.Default,
+            RenderTextureReadWrite.Linear
+            );
+        Graphics.Blit(source, renderTexture);
+        RenderTexture previous = RenderTexture.active;
+        RenderTexture.active = renderTexture;
+        Texture2D readableTexture = new Texture2D(source.width, source.height);
+        readableTexture.ReadPixels(new Rect(0, 0, renderTexture.width, renderTexture.height), 0, 0);
+        readableTexture.Apply();
+        RenderTexture.active = previous;
+        RenderTexture.ReleaseTemporary(renderTexture);
+        return readableTexture;
     }
 }
